@@ -26,8 +26,10 @@ class DataSet(Dataset):
 
     def __getitem__(self, idx):
         image = self.images[idx].float()
-        mean = torch.mean(image)
-        std = torch.std(image)
+        # mean = torch.mean(image)
+        # std = torch.std(image)
+        mean = 0.1307
+        std = 0.3081
         transform = transforms.Compose([
             transforms.Normalize(mean=mean, std=std)
         ])

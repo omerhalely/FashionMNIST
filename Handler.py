@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 import torch
 import torch.nn as nn
 from models import Lenet5, Lenet5_Dropout, Lenet5_BN
@@ -96,7 +97,11 @@ class Handler:
         plt.plot(train_accuracy, label="Train Acc")
         plt.plot(test_accuracy, label="Test Acc")
         plt.title(f'{self.model_name} Accuracy Graph')
-        plt.legend(loc="upper right")
+        plt.xlabel("Epoch")
+        plt.ylabel("Accuracy[%]")
+        plt.legend(loc="lower right")
+        plt.xticks(np.arange(0, len(train_accuracy), 1))
+        plt.grid()
         plt.savefig(os.path.join(os.getcwd(), "saved_models", self.model_name, "Accuracy Graph.png"))
         plt.close()
 
@@ -112,6 +117,8 @@ class Handler:
             else:
                 train_file.write(str(train_accuracy[i]))
                 test_file.write(str(test_accuracy[i]))
+        train_file.write(f'\nmax accuracy: {max(train_accuracy)}')
+        test_file.write(f'\nmax accuracy: {max(test_accuracy)}')
 
         train_file.close()
         test_file.close()
@@ -192,7 +199,7 @@ if __name__ == "__main__":
     batch_size = 32
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     num_of_classes = 10
-    weight_decay = 0.001
+    weight_decay = 0
 
     model = None
     if model_name == "Lenet5":

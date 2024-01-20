@@ -16,14 +16,14 @@ parser.add_argument(
     type=str,
     help="The name of the model which will be trained (Lenet5/Lenet5_BN/Lenet5_Dropout/Weight_Decay/all). "
          "Default - Lenet5",
-    default="all",
+    default="Lenet5",
 )
 
 parser.add_argument(
     "--epochs",
     type=int,
     help="Number of epochs the model will be trained. Default - 10",
-    default=1,
+    default=10,
 )
 
 parser.add_argument(
@@ -93,5 +93,7 @@ if __name__ == "__main__":
             handler.run_all_models()
         else:
             handler.run()
+    else:
+        print(f'model name {model_name} is not valid')
 
 
