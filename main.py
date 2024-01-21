@@ -4,6 +4,7 @@ import torch.optim as optim
 from models import Lenet5, Lenet5_BN, Lenet5_Dropout
 from Handler import Handler
 import argparse
+import os
 
 
 parser = argparse.ArgumentParser(
@@ -20,17 +21,18 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--data",
+    type=str,
+    help="The path to the dataset folder. "
+         "Default - Lenet5",
+    default="data",
+)
+
+parser.add_argument(
     "--epochs",
     type=int,
     help="Number of epochs the model will be trained. Default - 10",
     default=10,
-)
-
-parser.add_argument(
-    "--lr",
-    type=float,
-    help="The learning rate of the training. Default - 1e-3",
-    default=0.001,
 )
 
 parser.add_argument(
@@ -47,6 +49,12 @@ parser.add_argument(
     default=0.001,
 )
 
+parser.add_argument(
+    "--test",
+    type=str,
+    help="Test model on train/test set. If model already exists, loads the model.(train/test). Default - None",
+    default=None,
+)
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -54,12 +62,14 @@ if __name__ == "__main__":
     model_name = args.model_name
     output_classes = 10
     epochs = args.epochs
-    lr = args.lr
+    lr = 0.001
     criterion = nn.CrossEntropyLoss()
     batch_size = args.batch_size
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     num_of_classes = 10
-    if model_name != "Weight_Decay":
+    test = args.test
+    data_path = args.data
+    if model_name != "Weight_Decay" and model_name != "all":
         weight_decay = 0
     else:
         weight_decay = args.weight_decay
@@ -79,6 +89,7 @@ if __name__ == "__main__":
 
         handler = Handler(model=model,
                           model_name=model_name,
+                          data_path=data_path,
                           epochs=epochs,
                           optimizer=optimizer,
                           criterion=criterion,
@@ -89,7 +100,13 @@ if __name__ == "__main__":
                           lr=lr)
         print(f'model name: {model_name}\nepochs: {epochs}\nlearning rate: {lr}\nbatch size: {batch_size}\n'
               f'device: {device}\nweight decay: {weight_decay}\n')
-        if model_name == "all":
+        if test:
+            model_path = os.path.join(os.getcwd(), "saved_models", model_name, model_name + ".pt")
+            if os.path.exists(model_path):
+                checkpoint = torch.load(model_path)
+                model.load_state_dict(checkpoint["model"])
+            handler.test(test)
+        elif model_name == "all":
             handler.run_all_models()
         else:
             handler.run()

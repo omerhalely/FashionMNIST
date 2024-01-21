@@ -10,7 +10,7 @@ import os
 
 
 class Handler:
-    def __init__(self, model, model_name, epochs, optimizer, criterion, batch_size, device, num_of_classes, weight_decay,
+    def __init__(self, model, model_name, data_path, epochs, optimizer, criterion, batch_size, device, num_of_classes, weight_decay,
                  lr):
         self.model = model
         self.model_name = model_name
@@ -22,8 +22,8 @@ class Handler:
         self.weight_decay = weight_decay
         self.lr = lr
         self.num_of_classes = num_of_classes
-        self.train_dataset = DataSet(path="./data", kind="train", num_of_classes=num_of_classes)
-        self.test_dataset = DataSet(path="./data", kind="test", num_of_classes=num_of_classes)
+        self.train_dataset = DataSet(path=data_path, kind="train", num_of_classes=num_of_classes)
+        self.test_dataset = DataSet(path=data_path, kind="test", num_of_classes=num_of_classes)
 
     def train_one_epoch(self, epoch):
         self.model.train()
@@ -178,6 +178,7 @@ class Handler:
     def run_all_models(self):
         print("Training all models")
         self.model_name = "Lenet5"
+        self.optimizer = optim.AdamW(self.model.parameters(), lr=self.lr, weight_decay=0)
         self.run()
 
         self.switch_model(Lenet5_Dropout(output_classes=self.num_of_classes), "Lenet5_Dropout")
@@ -189,9 +190,23 @@ class Handler:
         self.switch_model(Lenet5(output_classes=self.num_of_classes), "Lenet5_BN")
         self.run()
 
+    def test(self, data_kind):
+        if data_kind == "test":
+            print(f'Testing test dataset over {self.model_name} model...')
+            test_loss, test_accuracy = self.evaluate_model(self.test_dataset, 0)
+            print(f'Test Loss: {test_loss}, Test Accuracy: {test_accuracy}%.')
+        elif data_kind == "train":
+            print(f'Testing training dataset over {self.model_name} model...')
+            train_val_loss, train_val_accuracy = self.evaluate_model(self.train_dataset, 0)
+            print(f'Train Loss: {train_val_loss}, Train Accuracy: {train_val_accuracy}%.')
+        else:
+            print("Data kind value is not legal (train / test).")
+            return
+
 
 if __name__ == "__main__":
     model_name = "Lenet5_BN"
+    data_path = "./data"
     output_classes = 10
     epochs = 10
     lr = 0.001
@@ -214,6 +229,7 @@ if __name__ == "__main__":
 
     handler = Handler(model=model,
                       model_name=model_name,
+                      data_path=data_path,
                       epochs=epochs,
                       optimizer=optimizer,
                       criterion=criterion,
