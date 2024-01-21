@@ -23,9 +23,9 @@ parser.add_argument(
 parser.add_argument(
     "--data",
     type=str,
-    help="The path to the dataset folder. "
+    help="The path to the dataset folder."
          "Default - Lenet5",
-    default="data",
+    default="./data",
 )
 
 parser.add_argument(
