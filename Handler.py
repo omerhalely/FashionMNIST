@@ -55,10 +55,11 @@ class Handler:
 
     def evaluate_model(self, dataset, epoch):
         print("Evaluating Model")
-        if self.model_name == "Lenet5_Dropout":
-            self.model.eval()
-        else:
-            self.model.train()
+        self.model.eval()
+        # if self.model_name == "Lenet5_Dropout":
+        #     self.model.eval()
+        # else:
+        #     self.model.train()
 
         dataloader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
 
